@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+[project]
+name = "mat-model"
+version = "0.1b11"
+description = "MAT-model: Model Classes for Multiple Aspect Trajectory Data Mining"
+authors = [
+    {name = "Tarlis Tortelli Portela", email = "tarlis@tarlis.com.br"},
+ ]
+maintainers = [
+    {name = "Tarlis Tortelli Portela", email = "tarlis@tarlis.com.br"},
+ ]
+readme = "README.md"
+keywords = [
+    "data-science",
+    "machine-learning",
+    "data-mining",
+    "trajectory",
+    "multiple-trajectory",
+    "trajectory-classification",
+    "preprocess",
+  ]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Operating System :: OS Independent",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.10",
+ ]
+requires-python = ">=3.7"
+dependencies = [
+    "glob2",
+    "numpy",
+    "pandas",
+    "mat-data",
+ ]
+
+[project.optional-dependencies]
+all_extras = [
+    "geohash",
+ ]
+
+dev = [
+    "pre-commit",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "wheel",
+ ]
+
+binder = [
+    "jupyter",
+ ]
+
+docs = [
+    "jupyter",
+    "numpydoc",
+ ]
+
+[project.urls]
+"Homepage" = "https://github.com/ttportela/mat-model"
+"Repository" = "https://github.com/ttportela/mat-model"
+"Documentation" = "https://github.com/ttportela/mat-model/blob/main/README.md"
+"Download" = "https://pypi.org/project/mat-model/#files"
+"Bug Tracker" = "https://github.com/ttportela/mat-model/issues"
+
+[project.license]
+text = 'GPL Version 3 or superior (see LICENSE file)'
+
+[tool.poetry]
+include = ["CHANGELOG.md"]
+
+[build-system]
+requires = ["setuptools", "wheel", "toml", "build"]
+build-backend = "setuptools.build_meta"
