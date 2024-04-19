@@ -105,19 +105,19 @@ class DateTimeAspect(Aspect):
 # ------------------------------------------------------------------------------------------------------------
 def instantiateAspect(k,v):
     try:
-        if k['type'] == 'nominal':
+        if k.dtype == 'nominal':
             return Aspect( str(v) )
-        elif k['type'] == 'numeric':
+        elif k.dtype == 'numeric':
             return Aspect( float(v) )
-        elif k['type'] == 'space2d':
+        elif k.dtype == 'space2d':
             x, y = v.split(' ')
             return Space2D(float(x), float(y))
-        elif k['type'] == 'space3d':
+        elif k.dtype == 'space3d':
             x, y, z = v.split(' ')
             return Space3D(float(x), float(y), float(z))
-        elif k['type'] == 'boolean':
+        elif k.dtype == 'boolean':
             return Aspect( bool(v) )
-        elif k['type'] == 'datetime':
+        elif k.dtype == 'datetime':
             from datetime import datetime
             #Format like: "YYYY-MM-DD HH:MM:SS.ffffff"
             return DateTimeAspect( datetime.fromisoformat(v) )

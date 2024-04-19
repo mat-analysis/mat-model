@@ -1,15 +1,51 @@
-from movelets.classes.Subtrajectory import Subtrajectory
-from movelets.classes.Feature import Feature
+from matmodel.base import Subtrajectory
+from matmodel.base import Feature
+from matmodel.base import MultipleAspectSequence
 # ------------------------------------------------------------------------------------------------------------
 # MOVELETS 
 # ------------------------------------------------------------------------------------------------------------
 class Movelet(Subtrajectory, Feature):
-    def __init__(self, trajectory, start, size, points, attributes_index, quality):
-        Subtrajectory.__init__(self, trajectory, start, size, points, attributes_index)
+    def __init__(self, trajectory, start, points, attributes_index, quality, mid=0, subset_attribute_desc=None):
+        Subtrajectory.__init__(self, trajectory, start, points, attributes_index)
         Feature.__init__(self, quality=quality)
         
+        self.mid = mid
+        self._subset_attr_desc = subset_attribute_desc
+        
     def __repr__(self):
-        return super().__repr__() + ' .Q'+'{:3.2f}'.format(self.quality.value*100)+'%' 
+        return self.Miq+' '+MultipleAspectSequence.__repr__(self)
+    
+    @property
+    def Mi(self):
+        return '𝓜𐄁{}'.format(self.mid)
+    @property
+    def Miq(self):
+        return '𝓜𐄁{}'.format(self.mid)+'❲{:3.2f}%❳'.format(self.quality.value*100)
+    @property
+    def m(self):
+        return '𝓜⟮{},{}⟯'.format(self.start, (self.start+self.size-1))
+    @property
+    def M(self):
+        return '𝓜⟮{},{}⟯'.format(self.start, (self.start+self.size-1))+'{'+','.join(map(lambda x: str(x), self._attributes))+'}'
+    
+    @property
+    def attributes(self):
+        if self.trajectory.attributes_desc:
+            return Subtrajectory.super(self).attributes #list(map(lambda index: self.trajectory.attributes[index], self._attributes))
+        else:
+            return self._subset_attr_desc
+        
+    @property
+    def subset_attr_desc(self):
+        return self._subset_attr_desc
+
+    @subset_attr_desc.setter
+    def subset_attr_desc(self, value):
+        self._subset_attr_desc = value
+    
+    @property
+    def l(self):
+        return len(self._attributes)
     
     @staticmethod
     def fromSubtrajectory(s, quality):

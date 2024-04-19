@@ -1,20 +1,27 @@
 # ------------------------------------------------------------------------------------------------------------
 # SUBTRAJECTORIES 
 # ------------------------------------------------------------------------------------------------------------
-from movelets.classes.MultipleAspectSequence import MultipleAspectSequence
+from matmodel.base.MultipleAspectSequence import MultipleAspectSequence
 
 class Subtrajectory(MultipleAspectSequence):
-    def __init__(self, trajectory, start, size, points, attributes_index):
+    def __init__(self, trajectory, start, points, attributes_index):
         MultipleAspectSequence.__init__(self, trajectory.tid)
         self.sid     = 0 # TODO generate unique sid
         self.start   = start
-        self.size   = size
+#        self.size   = size
         self.trajectory   = trajectory
         self.points       = points # list contains instances of Point class
         self._attributes   = attributes_index # Just the index of attributes (from points) that belong to the analysis
         
+    @property
+    def s(self):
+        return '𝓈⟨{},{}⟩'.format(self.start, (self.start+self.size-1))
+    @property
+    def S(self):
+        return '𝓈⟨{},{}⟩'.format(self.start, (self.start+self.size-1))+'{'+','.join(map(lambda x: str(x), self._attributes))+'}'
+    
     def __repr__(self):
-        return 'T'+str(self.trajectory.tid)+'.S('+str(self.start)+','+str(self.start+self.size-1)+').['+','.join(map(lambda x: str(x), self._attributes))+']'
+        return self.S+'𐄁'+self.trajectory.T+' '+MultipleAspectSequence.__repr__(self)
         
     def attribute(self, index):
         return self.trajectory.attributes[index]
@@ -29,9 +36,9 @@ class Subtrajectory(MultipleAspectSequence):
     def valuesOf(self, attributes_index):
         return super().valuesOf(attributes_index)
     
-    def asString(self):
-        return self.__repr__()+':'+super().asString(self._attributes)
-    
+#    def asString(self):
+#        return self.__repr__()+':'+super().asString(self._attributes)
+#    
 #    def attributes(self):
 #        return self.data[0].keys()
 #    

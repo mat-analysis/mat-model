@@ -33,6 +33,10 @@ class Comparator:
         distance = (distance * distance)
         return distance if distance < self.max_value else self.max_value
     
+    @staticmethod
+    def instantiate(json_obj):
+        return None # TODO
+    
 class EqualsDistance(Comparator):
     def __init__(self):
         self.max_value = 1

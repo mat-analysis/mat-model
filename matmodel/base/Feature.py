@@ -1,8 +1,4 @@
-from movelets.classes.Aspect import Aspect
-
-class Quality:
-    def __init__(self, value):
-        self.value = value
+from matmodel.base import Aspect
 
 class Feature:
     def __init__(self, quality=None):
