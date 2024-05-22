@@ -25,6 +25,9 @@ class Space2D(Aspect):
     def value(self):
         return (self.x, self.y)
     
+    def __repr__(self):
+        return "({:.3f} {:.3f})".format(self.x, self.y)
+    
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
@@ -38,6 +41,9 @@ class Space3D(Space2D):
     @Aspect.value.getter
     def value(self):
         return (self.x, self.y, self.z)
+    
+    def __repr__(self):
+        return "({:.3f} {:.3f} {:.3f})".format(self.x, self.y, self.z)
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z
@@ -124,5 +130,5 @@ def instantiateAspect(k,v):
         else:
             return Aspect( v )
     except:
-        raise Exception("[ERROR Aspect.py]: Filed to load value " + str(v) \
+        raise Exception("[ERROR Aspect.py]: Failed to load value " + str(v) \
                         + " as type " + str(k['type']) + ' attr#' + str(k['order']))

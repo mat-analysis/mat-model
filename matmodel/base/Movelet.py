@@ -1,5 +1,5 @@
 from matmodel.base import Subtrajectory
-from matmodel.base import Feature
+from matmodel.evaluation import Feature
 from matmodel.base import MultipleAspectSequence
 # ------------------------------------------------------------------------------------------------------------
 # MOVELETS 

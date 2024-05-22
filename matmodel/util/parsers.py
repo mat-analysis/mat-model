@@ -2,6 +2,8 @@ import pandas as pd
 import json
 from tqdm.auto import tqdm
 
+from matdata.preprocess import organizeFrame
+
 from matmodel.base import Trajectory, Movelet
 from matmodel.evaluation import Quality
 from matmodel.descriptor import readDescriptor, df2descriptor
@@ -10,6 +12,8 @@ from matmodel.descriptor import readDescriptor, df2descriptor
 # TRAJECTORY 
 # ------------------------------------------------------------------------------------------------------------
 def df2trajectory(df, attributes_desc=None, tid_col='tid', label_col='label'):
+    
+    df = normalize(df)
     
     # Translate atributes:
     if attributes_desc:
@@ -55,7 +59,7 @@ def json2movelet(file, name='movelets', count=0):
         points = pd.DataFrame(data[name][x]['points_with_only_the_used_features'])
         points['tid'] = tid
         points['label'] = label
-        attributes_desc = df2descriptor(points)
+        attributes_desc = df2descriptor(normalize(points))
 
         T = Trajectory(tid, label, None, None) #[], attributes_desc)
         start = int(data[name][x]['start'])
@@ -77,3 +81,7 @@ def json2movelet(file, name='movelets', count=0):
 
     ls_movelets.sort(key=lambda x: x.quality.value, reverse=True)
     return ls_movelets
+
+def normalize(df):
+    df, columns_order_zip, _ = organizeFrame(df)
+    return df[columns_order_zip]
