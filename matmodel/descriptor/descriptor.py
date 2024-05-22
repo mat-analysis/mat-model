@@ -47,8 +47,11 @@ class FeatureDescriptor:
     def instantiate(json_obj):
         fd = FeatureDescriptor(json_obj['order'], json_obj['text'], json_obj['type'])
         if 'comparator' in json_obj.keys():
-            fd.comparator = Comparator.instantiate(json_obj['comparator'])
+            fd.comparator = Comparator.instantiate(json_obj)
         return fd
+    
+    def __repr__(self):
+        return str(self.order) + '. ' + self.name + ' ('+self.dtype+')'
 # ----------------------------------------------------------------------------------------------------
 def readDescriptor(file_path):
     import ast
@@ -76,13 +79,13 @@ def df2descriptor(df, tid_col='tid', label_col='label'):
         elif columns[i] == 'xyz':
             dtype = 'space3d'
             comparator = 'euclidean'
-        elif df.dtypes[i] == int or df.dtypes[i] == float:
+        elif df.dtypes[columns[i]] == int or df.dtypes[columns[i]] == float:
             dtype = 'numeric'
             comparator = 'difference'
-        elif df.dtypes[i] == bool:
+        elif df.dtypes[columns[i]] == bool:
             dtype = 'boolean'
             comparator = 'equals'
-        elif df.dtypes[i] == 'datetime64[ns]' or df.dtypes[i] == '<M8[ns]':
+        elif df.dtypes[columns[i]] == 'datetime64[ns]' or df.dtypes[columns[i]] == '<M8[ns]':
             dtype = 'datetime'
             comparator = 'difference'
         else:

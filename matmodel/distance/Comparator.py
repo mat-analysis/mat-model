@@ -7,8 +7,9 @@ class Comparator:
     
     MAX_VALUE = float('inf')
     
-    def __init__(self):
-        self.max_value = Comparator.MAX_VALUE
+    def __init__(self, max_value=None):
+        self.max_value = max_value
+        self.min_value = 0
     
     def distance(self, asp1, asp2):
         '''Calculates the distance.
@@ -21,25 +22,41 @@ class Comparator:
         distance - distance equality value (0 for equal values, 1 for different).
         '''
         return 0 if asp1.__eq__(asp2) else 1
-    def match(self, asp1, asp2):
-        return True
+    
     def normalize(self, distance):
-        if self.max_value == -1:
+        if not self.max_value:
             return distance
-        if distance >= self.max_value:
-            return self.max_value
-        return distance / self.max_value
+        
+        return (distance - self.min_value) / (self.max_value - self.min_value)
+    
     def enhance(self, distance):
         distance = (distance * distance)
-        return distance if distance < self.max_value else self.max_value
+        if self.max_value and distance > self.max_value:
+            return self.max_value
+        else:
+            return distance
     
     @staticmethod
     def instantiate(json_obj):
-        return None # TODO
-    
+        # TODO: new distances and specific cases:
+        max_value = json_obj['comparator']['maxValue'] if 'maxValue' in json_obj['comparator'].keys() else -1
+        if max_value == -1:
+            max_value = None
+        
+        if json_obj['comparator']['distance'] == 'difference' and  json_obj['type'] == 'time':
+            units = json_obj['comparator']['units'] if 'units' in json_obj['comparator'].keys() else 'm'
+            return TimeDistance(max_value, units)
+        
+        elif json_obj['comparator']['distance'] == 'diffnotneg' or json_obj['comparator']['distance'] == 'difference':
+            return AbsoluteDistance(max_value)
+        
+        else:
+            cname = eval( str(json_obj['comparator']['distance']).capitalize()+'Distance' )
+            return cname(max_value)
+
 class EqualsDistance(Comparator):
-    def __init__(self):
-        self.max_value = 1
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
         
     def distance(self, asp1, asp2):
         '''Calculates the distance for eqality ignoring case.
@@ -54,12 +71,12 @@ class EqualsDistance(Comparator):
         return 0 if asp1._value.upper() == asp2._value.upper() else 1
 
 class CaselessDistance(Comparator):
-    def __init__(self):
-        self.max_value = 1
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
     
 class NumericDistance(Comparator):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
 
     def distance(self, asp1, asp2):
         '''Calculates the numeric distance.
@@ -74,8 +91,8 @@ class NumericDistance(Comparator):
         return asp1._value - asp2._value
     
 class AbsoluteDistance(NumericDistance):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
 
     def distance(self, asp1, asp2):
         '''Calculates the absolute distance.
@@ -88,7 +105,7 @@ class AbsoluteDistance(NumericDistance):
         distance - distance difference value, abs(asp1 - asp2).
         '''
         return abs(asp1._value - asp2._value)
-      
+
 class DateDistance(Comparator): 
     '''Calculates the date distance in one of the following units:
     D - days
@@ -107,10 +124,10 @@ class DateDistance(Comparator):
     units='ms'      - Unit measure to get distance.
     max_value=None  - Maximum possible value for distance, default: Comparator.MAX_VALUE = float('inf')
     '''
-    def __init__(self, units=None, max_value=None):
+    
+    def __init__(self, max_value=None, units=None):
+        Comparator.__init__(self, max_value)
         self.units = units
-        if max_value:
-            self.max_value = max_value
     
     def distance(self, asp1, asp2):
         dt1 = max(asp1._value - asp2._value)
@@ -149,7 +166,8 @@ class TimeDistance(Comparator):
     units='ms'      - Unit measure to get distance: h (hours), m (minutes), s (seconds), ms (microseconds)
     max_value=None  - Maximum possible value for distance (Ex.: hours = 24)
     '''
-    def __init__(self, units='ms', max_value=None): 
+    
+    def __init__(self, max_value=None, units='m'): 
         # Works for time in hours, minutes or seconds. Ex.: difference between 22h and 2h is 3h.
         self.units = units
         if max_value:
@@ -180,8 +198,8 @@ class TimeDistance(Comparator):
         return min( ((self.max_value - v1) + v2 +1), (v1 - v2) )
     
 class EuclideanDistance(Comparator):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
 
     def distance(self, asp1, asp2):
         '''Calculates the Euclidean distance (works for points of 2D, 3D, and more).
@@ -210,8 +228,8 @@ class EuclideanDistance(Comparator):
 #            return math.sqrt( diffX * diffX + diffY * diffY )
     
 class ManhattanDistance(Comparator):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
 
     def distance(self, asp1, asp2):
         '''Calculates the Manhattan distance (works for points of 2D, 3D, and more).
@@ -226,8 +244,8 @@ class ManhattanDistance(Comparator):
         return sum(map(lambda v1, v2: abs(v1 - v2), asp1.value, asp2.value))
     
 class LcsDistance(Comparator):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
     
     def lcs(self, X, Y):
         m = len(X)
@@ -248,6 +266,9 @@ class LcsDistance(Comparator):
         list(map(lambda i: list(map(lambda j: sublcs(i, j), range(n + 1))), range(m + 1)))            
 
         return L[m][n]
+    
+    def lcs_distance(self, X, Y):
+        return max(len(X),len(Y)) - self.lcs(X, Y) 
 
     def distance(self, asp1, asp2):
         '''Calculates the Longest Common Subsequence difference.
@@ -259,11 +280,11 @@ class LcsDistance(Comparator):
         Return:
         distance - LCS distance value.
         '''
-        return self.lcs(asp1._value, asp2._value)
+        return self.lcs_distance(asp1._value, asp2._value)
     
 class EditlcsDistance(LcsDistance):
-    def __init__(self):
-        pass
+    def __init__(self, max_value=None):
+        Comparator.__init__(self, max_value)
 
     def distance(self, asp1, asp2):
         '''Calculates the Longest Common Subsequence difference.
