@@ -14,14 +14,25 @@ class Aspect():
     
     def __eq__(self, other):
         return self._value == other._value
+    
+class Numeric(Aspect):
+    def __init__(self, value):
+        value = float(value)
+        Aspect.__init__(self, value)
+    
+class Categoric(Aspect):
+    def __init__(self, value):
+        Aspect.__init__(self, value)
 
 class Space2D(Aspect):
-    def __init__(self, x, y):
+    def __init__(self, value):
+        x, y = value.split(' ')
         Aspect.__init__(self, str((x,y)))
+        x, y = float(x), float(y)
         self.x = x
         self.y = y
 
-    @Aspect.value.getter
+    @Space2D.value.getter
     def value(self):
         return (self.x, self.y)
     
@@ -31,14 +42,17 @@ class Space2D(Aspect):
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
-
 class Space3D(Space2D):
-    def __init__(self, x, y, z):
-        Space2D.__init__(x, y)
+    def __init__(self, x, y, z):        
+        x, y, z = v.split(' ')
         Aspect.__init__(self, str((x,y,z)))
+        
+        x, y, z = float(x), float(y), float(z)
+        self.x = x
+        self.y = y
         self.z = z
 
-    @Aspect.value.getter
+    @Space3D.value.getter
     def value(self):
         return (self.x, self.y, self.z)
     
@@ -48,9 +62,18 @@ class Space3D(Space2D):
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z
 
-class DateTimeAspect(Aspect):
-    def __init__(self, value):
-        Aspect.__init__(self, value)
+class DateTime(Aspect):
+    def __init__(self, start):     
+#            from datetime import datetime
+#            #Format like: "YYYY-MM-DD HH:MM:SS.ffffff"
+#            return DateTimeAspect( datetime.fromisoformat(v) )
+        
+        # TODO Converter datetime
+        Aspect.__init__(self, start)
+    
+    @DateTime.start.getter
+    def start(self):
+        return self._value
     
     def day(self): #Just the day (1..30|31*)
         return self._value.day
@@ -82,8 +105,8 @@ class DateTimeAspect(Aspect):
     def microseconds(self):
         return self.seconds()*1000000 + self._value.microsecond
     
-    @Aspect.value.getter
-    def value(self, units=None):
+    @DateTime.value.getter
+    def value(self, units=None): # TODO for interval?
         if units == None:
             return self._value
         elif units == 'D':
@@ -103,30 +126,50 @@ class DateTimeAspect(Aspect):
         elif units == 'ms':
             return self.microseconds()
         else:
-            raise Exception('[ERROR DateTimeAspect]: invalid \'units='+str(units)+'\' conversion.')
+            raise Exception('[ERROR DateTime Aspect]: invalid \'units='+str(units)+'\' conversion.')
     
-#    def __eq__(self, other):
-#        return self._value == other._value
+class Interval(DateTime):
+    def __init__(self, start, end):
+        DateTime.__init__(self, start)
+        # TODO Converter datetime
+        self.end = end
+
+class Rank(Aspect):
+    def __init__(self, descriptor):
+        Aspect.__init__(self, descriptor)
+        self.rank_values = [] # ->RankValue
+        
+    @Rank.descriptor.getter
+    def descriptor(self):
+        return self._value
+    
+    def add(self, aspect, proportion):
+        self.rank_values.append(RankValue(aspect, proportion))
+    
+class RankValue:
+    def __init__(self, value, proportion):
+        self.value = value
+        self.proportion = proportion
 
 # ------------------------------------------------------------------------------------------------------------
 def instantiateAspect(k,v):
     try:
         if k.dtype == 'nominal':
-            return Aspect( str(v) )
+            return Categorical( str(v) )
         elif k.dtype == 'numeric':
-            return Aspect( float(v) )
+            return Numeric( v )
+        elif k.dtype == 'time' or k.dtype == 'datetime':
+            return DateTime( v )
         elif k.dtype == 'space2d':
             x, y = v.split(' ')
-            return Space2D(float(x), float(y))
+            return Space2D( v )
         elif k.dtype == 'space3d':
             x, y, z = v.split(' ')
-            return Space3D(float(x), float(y), float(z))
-        elif k.dtype == 'boolean':
-            return Aspect( bool(v) )
-        elif k.dtype == 'datetime':
-            from datetime import datetime
-            #Format like: "YYYY-MM-DD HH:MM:SS.ffffff"
-            return DateTimeAspect( datetime.fromisoformat(v) )
+            return Space3D( v )
+        elif k.dtype == 'rank':
+            return Rank( v )
+#        elif k.dtype == 'boolean':
+#            return Aspect( bool(v) )
         else:
             return Aspect( v )
     except:
