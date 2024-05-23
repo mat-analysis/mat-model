@@ -106,7 +106,65 @@ class AbsoluteDistance(NumericDistance):
         '''
         return abs(asp1._value - asp2._value)
 
-class DateDistance(Comparator): 
+class TimeDistance(Comparator):    
+    '''Calculates the closest time distance.
+    Only works for time in hours, minutes, seconds, and microseconds. Ex.: difference between 22h and 2h is 3h.
+
+    Properties:
+    units='ms'      - Unit measure to get distance: h (hours), m (minutes), s (seconds), ms (microseconds)
+    max_value=None  - Maximum possible value for distance (Ex.: hours = 24)
+    '''
+    
+    def __init__(self, max_value=None, units='m'): 
+        # Works for time in hours, minutes or seconds. Ex.: difference between 22h and 2h is 3h.
+        self.units = units
+        if units == 'h':
+            max_value = 23
+        elif units == 'm':
+            max_value = 24*60-1
+        elif units == 's':
+            max_value = 24*60*60-1
+        elif units == 'ms':
+            max_value = 24*60*60*1000-1
+        
+        Comparator.__init__(self, max_value)
+        
+    
+    def distance(self, asp1, asp2):
+        '''Calculates the closest time distance.
+        
+        Arguments:
+        asp1 (Aspect<numeric>, DateTime Aspect) - value 1 to compare
+        asp2 (Aspect<numeric>, DateTime Aspect) - value 2 to compare
+        
+        Return:
+        distance - distance difference in the informed units.
+        '''
+        
+        v1 = asp1.get(self.units)
+        v2 = asp2.get(self.units)
+        
+        v1, v2 = max(v1, v2), min(v1, v2)
+        
+        return min( ((self.max_value - v1) + v2 +1), (v1 - v2) )
+    
+    def abs_distance(self, asp1, asp2):
+        '''Calculates the simple time distance.
+        
+        Arguments:
+        asp1 (Aspect<numeric>, DateTime Aspect) - value 1 to compare
+        asp2 (Aspect<numeric>, DateTime Aspect) - value 2 to compare
+        
+        Return:
+        distance - distance difference in the informed units.
+        '''
+        
+        v1 = asp1.get(self.units)
+        v2 = asp2.get(self.units)
+        
+        return abs(v1 - v2)
+
+class DatetimeDistance(Comparator): 
     '''Calculates the date distance in one of the following units:
     D - days
     M - months
@@ -130,72 +188,90 @@ class DateDistance(Comparator):
         self.units = units
     
     def distance(self, asp1, asp2):
-        dt1 = max(asp1._value - asp2._value)
-        dt2 = min(asp1._value - asp2._value)
+        dt1 = max(asp1._value, asp2._value)
+        dt2 = min(asp1._value, asp2._value)
 #        delta = abs(asp1._value - asp2._value)
         if self.units == None or self.units == 's':
             return (dt1 - dt2).total_seconds()
-        if units == 'D':
+        if self.units == 'D':
             return (dt1 - dt2).days
-        elif units == 'M': # This is a workaround datetime.timedelta:
+        elif self.units == 'M': # This is a workaround datetime.timedelta:
             from dateutil.relativedelta import relativedelta
             delta = relativedelta(dt1, dt2)
             return delta.years*12 + delta.months
-        elif units == 'Y':
+        elif self.units == 'Y':
             return dt1.year - dt2.year
-        elif units == 'w':
+        elif self.units == 'w':
             return (dt1 - dt2).days // 7
-        elif units == 'h':
+        elif self.units == 'h':
             return (dt1 - dt2).total_seconds() // 3600
-        elif units == 'm':
+        elif self.units == 'm':
             return (dt1 - dt2).total_seconds() // 60
-        elif units == 'weekday':
+        elif self.units == 'weekday':
             return dt1.weekday() - dt2.weekday()
-        elif units == '=weekday':
+        elif self.units == '=weekday':
             return dt1.weekday() == dt2.weekday()
-        elif units == 'isweekday':
+        elif self.units == 'isweekday':
             return 0 if dt1.isweekday() == dt2.isweekday() else 1
         else:               
             return (dt1 - dt2).total_seconds()
-
-class TimeDistance(Comparator):    
-    '''Calculates the closest time distance.
-    Only works for time in hours, minutes, seconds, and microseconds. Ex.: difference between 22h and 2h is 3h.
-
-    Properties:
-    units='ms'      - Unit measure to get distance: h (hours), m (minutes), s (seconds), ms (microseconds)
-    max_value=None  - Maximum possible value for distance (Ex.: hours = 24)
-    '''
     
-    def __init__(self, max_value=None, units='m'): 
-        # Works for time in hours, minutes or seconds. Ex.: difference between 22h and 2h is 3h.
-        self.units = units
-        if max_value:
-            self.max_value = max_value
-        elif units == 'h':
-            self.max_value = 23
-        elif units == 'm':
-            self.max_value = 24*60-1
-        elif units == 's':
-            self.max_value = 24*60*60-1
-        elif units == 'ms':
-            self.max_value = 24*60*60*1000-1
-    
+class InintervalDistance(DatetimeDistance): # TimeDistance.distance calculate difference in minutes (if units == 'm')        
+    def __init__(self, max_value=None, units='m'):
+        DateDistance.__init__(self, max_value, units)  
+        
     def distance(self, asp1, asp2):
-        '''Calculates the closest time distance.
+        from matmodel.base import Interval
         
-        Arguments:
-        asp1 (Aspect<numeric>, DateTimeAspect) - value 1 to compare
-        asp2 (Aspect<numeric>, DateTimeAspect) - value 2 to compare
+        # in case one aspect is an Interval return 0 if match, else return 1
+        if isinstance(asp1, Interval) or isinstance(asp2, Interval):
+            return 0 if self.match(asp1, asp2) else 1
+        else:
+            return super().distance(asp1, asp2) # Gets the time difference
+    
+    def match(self, asp1, asp2, match_threshold=0): #Check if the dates or intervals match (can use with 'DateTime' or 'Interval' instances, or mixed)
+        from matmodel.base import DateTime, Interval
         
-        Return:
-        distance - distance difference in the informed units.
-        '''
-        v1 = asp1.value(self.units)
-        v2 = asp2.value(self.units)
-        v1 = max(v1, v2)
-        v2 = min(v1, v2)
-        return min( ((self.max_value - v1) + v2 +1), (v1 - v2) )
+        if not (isinstance(asp1, DateTime) and isinstance(asp2, DateTime)):
+            raise TypeError("Aspects must be 'DateTime' or 'Interval' instances.")
+
+        # For 2 intervals:
+        if isinstance(asp1, Interval) and isinstance(asp2, Interval):
+            return self.converge(asp1, asp2)
+        
+        # For 1 date and 1 interval:
+        # If asp1 or asp2 represents a point in time (just DateTime.start),
+        elif isinstance(asp1, Interval) or isinstance(asp2, Interval):
+            return self.match_date_interval(asp1, asp2)
+
+        # If both asp1 and asp2 represents a point in time, we use the distance to see a match:
+        # (match_th is a threshold for matching, default 0)
+        else:
+            return self.match_dates(asp1, asp2, match_threshold)
+    
+    def match_dates(self, asp1, asp2, match_threshold=0):
+        return False if int(self.distance(asp1, asp2)) > match_threshold else True
+        
+    def match_date_interval(self, asp1, asp2):
+        from matmodel.base import Interval
+        
+        if isinstance(asp2, Interval): #  asp1 is the DateTime, asp2 is the Interval
+            D = asp1
+            I = asp2
+        else:
+            D = asp2
+            I = asp1
+            
+        return True if D.start >= I.start and D.start <= I.end else False
+    
+    def converge(self, asp1, asp2):
+        if not (isinstance(asp1, Interval) and isinstance(asp2, Interval)):
+            raise TypeError("Aspects must be 'Interval' instances.")
+
+        if max(asp1.start, asp2.start) <= min(asp1.end, asp2.end):
+            return True
+        else:
+            return False
     
 class EuclideanDistance(Comparator):
     def __init__(self, max_value=None):

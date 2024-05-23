@@ -1,4 +1,4 @@
-from matmodel.distance import Comparator
+from matmodel.comparator import Comparator
 
 class DataDescriptor:
     def __init__(self, idDesc=None, labelDesc=None, attributes=[]):

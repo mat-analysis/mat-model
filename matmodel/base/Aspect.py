@@ -1,3 +1,5 @@
+import datetime
+
 class Aspect():
     def __init__(self, value):
         self._value = value
@@ -32,7 +34,7 @@ class Space2D(Aspect):
         self.x = x
         self.y = y
 
-    @Space2D.value.getter
+    @Aspect.value.getter
     def value(self):
         return (self.x, self.y)
     
@@ -52,7 +54,7 @@ class Space3D(Space2D):
         self.y = y
         self.z = z
 
-    @Space3D.value.getter
+    @Aspect.value.getter
     def value(self):
         return (self.x, self.y, self.z)
     
@@ -63,15 +65,14 @@ class Space3D(Space2D):
         return self.x == other.x and self.y == other.y and self.z == other.z
 
 class DateTime(Aspect):
-    def __init__(self, start):     
-#            from datetime import datetime
-#            #Format like: "YYYY-MM-DD HH:MM:SS.ffffff"
-#            return DateTimeAspect( datetime.fromisoformat(v) )
-        
-        # TODO Converter datetime
+    def __init__(self, start, mask="%H:%M"): 
+        # Convert to datetime:
+        start = self.convert(start)
         Aspect.__init__(self, start)
+        
+        self.mask = mask
     
-    @DateTime.start.getter
+    @property
     def start(self):
         return self._value
     
@@ -105,8 +106,7 @@ class DateTime(Aspect):
     def microseconds(self):
         return self.seconds()*1000000 + self._value.microsecond
     
-    @DateTime.value.getter
-    def value(self, units=None): # TODO for interval?
+    def get(self, units=None): # TODO for interval?
         if units == None:
             return self._value
         elif units == 'D':
@@ -128,18 +128,37 @@ class DateTime(Aspect):
         else:
             raise Exception('[ERROR DateTime Aspect]: invalid \'units='+str(units)+'\' conversion.')
     
+    def convertMinToDate(self, minutes):
+        # reference date (can be any one)
+        reference_date = datetime.datetime(2024, 1, 1)
+
+        # Compute difference of time in minutes
+        time_diff = datetime.timedelta(minutes=minutes)
+
+        # Add diff to refence date
+        result_date = reference_date + time_diff
+
+        return result_date
+    
+    def convert(self, value, mask = None):
+        return datetime.datetime.strptime(value, mask) if mask else self.convertMinToDate(int(value))
+    
 class Interval(DateTime):
-    def __init__(self, start, end):
-        DateTime.__init__(self, start)
-        # TODO Converter datetime
+    def __init__(self, start, end, mask="%H:%M"):
+        DateTime.__init__(self, start, mask)
+        # Convert to datetime
+        end = self.convert(end)
         self.end = end
+        
+    def __repr__(self):
+        return '[{} 𛲔𛲔 {}]'.format(self.start, self.end)
 
 class Rank(Aspect):
     def __init__(self, descriptor):
         Aspect.__init__(self, descriptor)
         self.rank_values = [] # ->RankValue
         
-    @Rank.descriptor.getter
+    @property
     def descriptor(self):
         return self._value
     
@@ -154,8 +173,8 @@ class RankValue:
 # ------------------------------------------------------------------------------------------------------------
 def instantiateAspect(k,v):
     try:
-        if k.dtype == 'nominal':
-            return Categorical( str(v) )
+        if k.dtype == 'nominal' or k.dtype == 'categorical':
+            return Categoric( str(v) )
         elif k.dtype == 'numeric':
             return Numeric( v )
         elif k.dtype == 'time' or k.dtype == 'datetime':
@@ -172,6 +191,7 @@ def instantiateAspect(k,v):
 #            return Aspect( bool(v) )
         else:
             return Aspect( v )
-    except:
+    except Exception as e:
+        print(e)
         raise Exception("[ERROR Aspect.py]: Failed to load value " + str(v) \
-                        + " as type " + str(k['type']) + ' attr#' + str(k['order']))
+                        + " as type " + k.dtype + ' attr#' + str(k.order))
