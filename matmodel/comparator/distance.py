@@ -218,7 +218,7 @@ class DatetimeDistance(Comparator):
     
 class InintervalDistance(DatetimeDistance): # TimeDistance.distance calculate difference in minutes (if units == 'm')        
     def __init__(self, max_value=None, units='m'):
-        DateDistance.__init__(self, max_value, units)  
+        DatetimeDistance.__init__(self, max_value, units)  
         
     def distance(self, asp1, asp2):
         from matmodel.base import Interval
