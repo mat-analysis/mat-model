@@ -7,18 +7,18 @@ from matmodel.descriptor import DataDescriptor
 ARROW = ['➜', '↴', '→', '↝', '⇒', '⇢', '⇾', '➡', '⇨', '⇛']
 
 class MultipleAspectSequence:
-    def __init__(self, seq_id, new_points=None, attributes_desc=None):
+    def __init__(self, seq_id, new_points=None, data_desc=None):
         self.tid          = seq_id
         
         self.points       = []
-        self.attributes_desc = None
+        self.data_desc = None
         
-        if new_points != None and attributes_desc != None:
+        if new_points != None and data_desc != None:
             assert isinstance(new_points, list)
-            assert isinstance(attributes_desc, DataDescriptor)
+            assert isinstance(data_desc, DataDescriptor)
             
-            self.attributes_desc   = attributes_desc
-            self.readSequence(new_points, attributes_desc)
+            self.data_desc   = data_desc
+            self.readSequence(new_points, data_desc)
                 
     def __repr__(self):
         return ARROW[0].join(map(lambda p: str(p), self.points))
@@ -37,7 +37,7 @@ class MultipleAspectSequence:
         return len(self.attributes)
     @property
     def attributes(self):
-        return self.attributes_desc.attributes
+        return self.data_desc.attributes
     
     @property
     def attribute_names(self):
@@ -47,20 +47,20 @@ class MultipleAspectSequence:
     def size(self):
         return len(self.points)
     
-    def readSequence(self, new_points, attributes_desc):
+    def readSequence(self, new_points, data_desc):
         assert isinstance(new_points, list)
-        assert isinstance(attributes_desc, DataDescriptor)
+        assert isinstance(data_desc, DataDescriptor)
         
         if new_points is not None:
             self.points = list(map(lambda seq: 
                                    Point.fromRecord(
                                        seq+self.start if isinstance(self, Subtrajectory) else seq, 
-                                   new_points[seq], attributes_desc), 
+                                   new_points[seq], data_desc), 
                           range(len(new_points))))
     
-    def addPoint(self, aspects, attributes_desc):
+    def addPoint(self, aspects, data_desc):
         assert isinstance(aspects, tuple)
-        self.points.append(Point(self.size, aspects, attributes_desc))
+        self.points.append(Point(self.size, aspects, data_desc))
         self.size += 1
         
     def subsequence(self, start, size=1, attributes_index=None):
@@ -109,19 +109,19 @@ class Point:
         return '𝘱'+str(self.seq+1)
     
     @staticmethod
-    def fromRecord(seq, record, attributes_desc):
+    def fromRecord(seq, record, data_desc):
         assert isinstance(record, tuple)
-        assert isinstance(attributes_desc, DataDescriptor) 
+        assert isinstance(data_desc, DataDescriptor) 
         
-        aspects = list(map(lambda a, v: instantiateAspect(a, v), attributes_desc.attributes, record))
+        aspects = list(map(lambda a, v: instantiateAspect(a, v), data_desc.attributes, record))
         return Point(seq, aspects)
 
 # ------------------------------------------------------------------------------------------------------------
 # TRAJECTORY 
 # ------------------------------------------------------------------------------------------------------------
 class Trajectory(MultipleAspectSequence):
-    def __init__(self, tid, label, new_points, attributes_desc):
-        MultipleAspectSequence.__init__(self, tid, new_points, attributes_desc)
+    def __init__(self, tid, label, new_points, data_desc):
+        MultipleAspectSequence.__init__(self, tid, new_points, data_desc)
         self.label = label
            
     @property
@@ -150,6 +150,10 @@ class Subtrajectory(MultipleAspectSequence):
         self.points       = points # list contains instances of Point class
         self._attributes   = attributes_index # Just the index of attributes (from points) that belong to the analysis
         
+    @property
+    def attributes_index(self):
+        return self._attributes
+    
     @property
     def s(self):
         return '𝓈⟨{},{}⟩'.format(self.start, (self.start+self.size-1))

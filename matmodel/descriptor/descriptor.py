@@ -7,6 +7,8 @@ class DataDescriptor:
         
         self.attributes = attributes
         
+        self.dependencies = None
+        
     def __iter__(self):
         self.actual = 0 
         return self
@@ -29,15 +31,29 @@ class DataDescriptor:
         
         attrs = list(map(lambda a: FeatureDescriptor.instantiate(a), json_obj['attributes']))
         
-        return DataDescriptor(jof_id, jof_lb, attrs)
+        dd = DataDescriptor(jof_id, jof_lb, attrs)
+        
+        dd.dependencies = dict(map(lambda d: (d.dependency_group, \
+                                             list(filter(lambda a: a.dependency_group == d.dependency_group, attrs))), attrs))
+
+        if None in dd.dependencies.keys():
+            del dd.dependencies[None]
+        if len(dd.dependencies.keys()) == 0:
+            dd.dependencies = None
+        
+        return dd
 
 class FeatureDescriptor:
-    def __init__(self, order, text, dtype='nominal', comparator=None):
+    def __init__(self, order, text, dtype='nominal', comparator=None, weight=None):
         self.order = order
         self.dtype = dtype
         self.text = text
         
+        self.weight = weight
+        
         self.comparator = comparator
+        
+        self.dependency_group = None
         
     @property
     def name(self):
@@ -46,6 +62,12 @@ class FeatureDescriptor:
     @staticmethod
     def instantiate(json_obj):
         fd = FeatureDescriptor(json_obj['order'], json_obj['text'], json_obj['type'])
+        
+        if 'weight' in json_obj.keys():
+            fd.weight = float(json_obj['weight'])
+        if 'dependency' in json_obj.keys():
+            fd.dependency_group = json_obj['dependency']
+        
         if 'comparator' in json_obj.keys():
             fd.comparator = Comparator.instantiate(json_obj)
         return fd
@@ -73,21 +95,22 @@ def df2descriptor(df, tid_col='tid', label_col='label'):
         if columns[i] == tid_col or columns[i] == label_col:
             continue
         
-        if columns[i] == 'lat_lon' or columns[i] == 'space':
+        if columns[i] == 'lat_lon' or columns[i] == 'space': # Separate lat and lon becomes Numeric Aspect
             dtype = 'space2d'
             comparator = 'euclidean'
-        elif columns[i] == 'xyz':
+        elif columns[i] == 'xyz' or 'xyz' in columns[i]:
             dtype = 'space3d'
             comparator = 'euclidean'
+        elif columns[i] == 'time' or columns[i] == 'datetime' or \
+             df.dtypes[columns[i]] == 'datetime64[ns]' or df.dtypes[columns[i]] == '<M8[ns]':
+            dtype = 'datetime'
+            comparator = 'datetime'
         elif df.dtypes[columns[i]] == int or df.dtypes[columns[i]] == float:
             dtype = 'numeric'
             comparator = 'difference'
         elif df.dtypes[columns[i]] == bool:
             dtype = 'boolean'
             comparator = 'equals'
-        elif df.dtypes[columns[i]] == 'datetime64[ns]' or df.dtypes[columns[i]] == '<M8[ns]':
-            dtype = 'datetime'
-            comparator = 'difference'
         else:
             dtype = 'nominal'
             comparator = 'equals'
@@ -115,11 +138,13 @@ def descriptor2json(dataDescriptor):
         },
         'attributes': list(map(lambda at: 
             {
-                'order': dataDescriptor.idDesc.order, 
-                'type': dataDescriptor.idDesc.type, 
-                'text': dataDescriptor.idDesc.text,
+                'order': at.order, 
+                'type': at.type, 
+                'text': at.text,
+                'weight': at.weight,
                 'comparator': {
                     'distance': at.comparator # TODO inverse convert
+                    # TODO other params
                 }
             },
                               

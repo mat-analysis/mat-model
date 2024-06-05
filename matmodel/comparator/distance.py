@@ -11,6 +11,28 @@ class Comparator:
         self.max_value = max_value
         self.min_value = 0
     
+    def match(self, asp1, asp2, match_threshold=0):
+        """
+        Determine whether two aspects match in equality
+        Override this method to change behavior, can use match_threshold to match based on a specified threshold.
+
+        Parameters:
+        -----------
+        asp1 : Aspect
+            The first aspect to be compared.
+        asp2 : Aspect
+            The second aspect to be compared.
+        match_threshold : float, optional
+            A threshold for matching criteria (default 0). 
+            Currently, it is used to match based on 0 distance.
+
+        Returns:
+        --------
+        bool
+            True if the two aspects match, False otherwise.
+        """
+        return True if self.distance(asp1, asp2) <= match_threshold else False
+    
     def distance(self, asp1, asp2):
         '''Calculates the distance.
 
@@ -39,20 +61,31 @@ class Comparator:
     @staticmethod
     def instantiate(json_obj):
         # TODO: new distances and specific cases:
-        max_value = json_obj['comparator']['maxValue'] if 'maxValue' in json_obj['comparator'].keys() else -1
+        max_value = json_obj['comparator']['maxValue'] if 'maxValue' in json_obj['comparator'].keys() else None
         if max_value == -1:
             max_value = None
         
+        c = None
         if json_obj['comparator']['distance'] == 'difference' and  json_obj['type'] == 'time':
             units = json_obj['comparator']['units'] if 'units' in json_obj['comparator'].keys() else 'm'
-            return TimeDistance(max_value, units)
+            c = TimeDistance(max_value, units)
         
         elif json_obj['comparator']['distance'] == 'diffnotneg' or json_obj['comparator']['distance'] == 'difference':
-            return AbsoluteDistance(max_value)
+            c = AbsoluteDistance(max_value)
         
         else:
             cname = eval( str(json_obj['comparator']['distance']).capitalize()+'Distance' )
-            return cname(max_value)
+            c = cname(max_value)
+            
+        # Other Params:
+        min_value = json_obj['comparator']['minValue'] if 'minValue' in json_obj['comparator'].keys() else None
+        if min_value == -1:
+            c.min_value = min_value
+            
+        for k, v in json_obj['comparator'].items():
+            if k not in ['distance', 'maxValue', 'minValue']:
+                setattr(c, k, v)
+        return c
 
 class EqualsDistance(Comparator):
     def __init__(self, max_value=None):

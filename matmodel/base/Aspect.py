@@ -17,6 +17,16 @@ class Aspect():
     def __eq__(self, other):
         return self._value == other._value
     
+class Boolean(Aspect):
+    def __init__(self, value): # TODO Other possible false and true values?
+        if value in ['False', 'No', 'FALSE', 'false', 'N', '-', 'NO']:
+            value = False
+        elif value in ['True', 'Yes', 'TRUE', 'true', 'Y', 'YES', 'S']:
+            value = True
+        else:
+            value = bool(value)
+        Aspect.__init__(self, value)
+    
 class Numeric(Aspect):
     def __init__(self, value):
         value = float(value)
@@ -177,7 +187,7 @@ def instantiateAspect(k,v):
             return Categoric( str(v) )
         elif k.dtype == 'numeric':
             return Numeric( v )
-        elif k.dtype == 'time' or k.dtype == 'datetime':
+        elif k.dtype == 'datetime' or k.dtype == 'time':
             return DateTime( v )
         elif k.dtype == 'space2d':
             x, y = v.split(' ')
@@ -187,8 +197,8 @@ def instantiateAspect(k,v):
             return Space3D( v )
         elif k.dtype == 'rank':
             return Rank( v )
-#        elif k.dtype == 'boolean':
-#            return Aspect( bool(v) )
+        elif k.dtype == 'boolean' or k.dtype == 'bool':
+            return Boolean( v )
         else:
             return Aspect( v )
     except Exception as e:

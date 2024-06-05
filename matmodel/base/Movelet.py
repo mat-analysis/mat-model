@@ -9,9 +9,13 @@ class Movelet(Subtrajectory, Feature):
         Subtrajectory.__init__(self, trajectory, start, points, attributes_index)
         Feature.__init__(self, quality=quality)
         
-        self.mid = mid
+        self.sid = mid
         self._subset_attr_desc = subset_attribute_desc
         
+    @property
+    def mid(self):
+        return self.sid
+    
     def __repr__(self):
         return self.Miq+' '+MultipleAspectSequence.__repr__(self)
     
@@ -30,7 +34,7 @@ class Movelet(Subtrajectory, Feature):
     
     @property
     def attributes(self):
-        if self.trajectory.attributes_desc:
+        if self.trajectory.data_desc:
             return Subtrajectory.super(self).attributes #list(map(lambda index: self.trajectory.attributes[index], self._attributes))
         else:
             return self._subset_attr_desc

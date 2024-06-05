@@ -9,8 +9,6 @@ The present package offers a tool, to support the user in the task of modeling m
 Created on Apr, 2024
 Copyright (C) 2023, License GPL Version 3 or superior (see LICENSE file)
 
-** UNDER DEVELOPMENT **
-
 
 ### Installation
 
@@ -22,7 +20,7 @@ Install directly from PyPi repository, or, download from github. (python >= 3.7 
 
 ### Getting Started
 
-On how to use this package, see [MAT-model-Tutorial.ipynb](https://github.com/ttportela/mat-data/blob/main/MAT-model-Tutorial.ipynb) (or the HTML [MAT-model-Tutorial.html](https://github.com/ttportela/mat-data/blob/main/MAT-model-Tutorial.html))
+On how to use this package, see [MAT-model-Tutorial.ipynb](https://github.com/mat-analysis/mat-model/blob/main/MAT-model-Tutorial.ipynb)
 
 ### Citing
 
@@ -53,11 +51,9 @@ Feel free to contribute in any form, such as scientific publications referencing
 
 ### Related packages
 
-This package is part of _MAT-Tools Framework_ for Multiple Aspect Trajectory Data Mining:
+This package is part of _MAT-Tools Framework_ for Multiple Aspect Trajectory Data Mining, check the guide project:
 
-- [automatize](https://github.com/ttportela/automatize): automatize for experimental evaluation of MAT classification
-- [movelets](https://github.com/ttportela/movelets): movelets for MAT classification methods (based on movelets)
-- [mat-tools](https://github.com/ttportela/mat-tools): mat-tools is a entrypont to find all librareis for MAT data
+- **[mat-tools](https://github.com/mat-analysis/mat-tools)**: Reference guide for MAT-Tools Framework repositories
 
 ### Change Log
 
