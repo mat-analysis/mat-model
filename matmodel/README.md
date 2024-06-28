@@ -26,23 +26,13 @@ On how to use this package, see [MAT-model-Tutorial.ipynb](https://github.com/ma
 
 ### Citing
 
-If you use `mat-model` please cite the following paper (this package is fragmented from `automatize` realease):
+If you use `mat-model` please cite the following paper:
 
-    Portela, Tarlis Tortelli; Bogorny, Vania; Bernasconi, Anna; Renso, Chiara. AutoMATise: Multiple Aspect Trajectory Data Mining Tool Library. 2022 23rd IEEE International Conference on Mobile Data Management (MDM), 2022, pp. 282-285, doi: 10.1109/MDM55031.2022.00060.
+**TODO**
 
 Bibtex:
 ```bash
-@inproceedings{Portela2022automatise,
-    title={AutoMATise: Multiple Aspect Trajectory Data Mining Tool Library},
-    author={Portela, Tarlis Tortelli and Bogorny, Vania and Bernasconi, Anna and Renso, Chiara},
-    booktitle = {2022 23rd IEEE International Conference on Mobile Data Management (MDM)},
-    volume={},
-    number={},
-    address = {Online},
-    year={2022},
-    pages = {282--285},
-    doi={10.1109/MDM55031.2022.00060}
-}
+@inproceedings{...}
 ```
 
 ### Collaborate with us
