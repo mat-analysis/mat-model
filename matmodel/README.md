@@ -9,6 +9,8 @@ The present package offers a tool, to support the user in the task of modeling m
 Created on Apr, 2024
 Copyright (C) 2023, License GPL Version 3 or superior (see LICENSE file)
 
+![MAT-Model Diagram](MAT-Model.png) 
+
 
 ### Installation
 
