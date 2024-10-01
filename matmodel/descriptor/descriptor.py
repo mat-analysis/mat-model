@@ -1,6 +1,46 @@
+# -*- coding: utf-8 -*-
+"""
+MAT-Tools: Python Framework for Multiple Aspect Trajectory Data Mining
+
+The present application offers a tool, to support the user in the modeling of multiple aspect trajectory data. It integrates into a unique framework for multiple aspects trajectories and in general for multidimensional sequence data mining methods.
+Copyright (C) 2022, MIT license (this portion of code is subject to licensing from source project distribution)
+
+Created on Apr, 2024
+Copyright (C) 2024, License GPL Version 3 or superior (see LICENSE file)
+
+Authors:
+    - Tarlis Portela
+    - Vanessa Lago Machado
+"""
 from matmodel.comparator import Comparator
 
 class DataDescriptor:
+    """
+    Represents a data descriptor that describes the structure of data, including the ID, label, and attributes.
+
+    Attributes:
+    -----------
+    idDesc (FeatureDescriptor): 
+        Descriptor for the ID feature.
+    labelDesc (FeatureDescriptor): 
+        Descriptor for the label feature.
+    attributes (list): 
+        List of feature descriptors for the attributes.
+    dependencies (dict): 
+        A dictionary mapping dependency groups to the associated attributes (optional).
+
+    Methods:
+    --------
+    __iter__(): 
+        Initializes the iterator for the attributes.
+    __next__(): 
+        Iterates through the attributes.
+    feature_names(): 
+        Returns a list of names (text) for all the attributes.
+        
+    instantiate(json_obj):
+        Static method to instantiate a DataDescriptor from a JSON object.
+    """
     def __init__(self, idDesc=None, labelDesc=None, attributes=[]):
         self.idDesc = idDesc
         self.labelDesc = labelDesc
@@ -44,6 +84,35 @@ class DataDescriptor:
         return dd
 
 class FeatureDescriptor:
+    """
+    Represents a descriptor for a single feature (attribute) in the dataset.
+
+    Attributes:
+    -----------
+    order (int): 
+        The order of the feature in the dataset.
+    dtype (str): 
+        The data type of the feature (e.g., 'nominal', 'numeric', 'boolean').
+    text (str): 
+        The textual description or name of the feature.
+    weight (float): 
+        The weight associated with this feature for comparisons (optional).
+    comparator (str): 
+        The instance of the class comparator used to compare feature values (optional).
+    dependency_group (str):
+        The dependency group name for this feature (optional).
+
+    Methods:
+    --------
+    name(): 
+        Property to return the name (text) of the feature.
+    __repr__(): 
+        Returns a string representation of the feature descriptor.
+        
+    
+    instantiate(json_obj): 
+        Static method to instantiate a FeatureDescriptor from a JSON object.
+    """
     def __init__(self, order, text, dtype='nominal', comparator=None, weight=None):
         self.order = order
         self.dtype = dtype
@@ -76,6 +145,19 @@ class FeatureDescriptor:
         return str(self.order) + '. ' + self.name + ' ('+self.dtype+')'
 # ----------------------------------------------------------------------------------------------------
 def readDescriptor(file_path):
+    """
+    Reads a descriptor file and returns a DataDescriptor instance.
+
+    Args:
+    -----
+    file_path (str):
+        The path to the descriptor file.
+
+    Returns:
+    --------
+    DataDescriptor: 
+        The instantiated DataDescriptor object from the file.
+    """
     import ast
     file = open(file_path)
     desc = ast.literal_eval(file.read())
@@ -83,6 +165,23 @@ def readDescriptor(file_path):
     return DataDescriptor.instantiate(desc)
 
 def df2descriptor(df, tid_col='tid', label_col='label'):
+    """
+    Converts a pandas DataFrame into a DataDescriptor based on the column types and names.
+
+    Args:
+    -----
+    df (DataFrame): 
+        The pandas DataFrame of trajectory data to be described.
+    tid_col (str): 
+        The name of the column used as the TID feature.
+    label_col (str): 
+        The name of the column used as the label feature.
+
+    Returns:
+    --------
+    DataDescriptor: 
+        A descriptor that represents the structure of the DataFrame.
+    """
     columns = list(df.columns)
     desc = {
         'idFeature': {'order': columns.index(tid_col)+1, 'type': 'numeric', 'text': tid_col}, 
@@ -125,6 +224,19 @@ def df2descriptor(df, tid_col='tid', label_col='label'):
     return DataDescriptor.instantiate(desc)
 
 def descriptor2json(dataDescriptor):
+    """
+    Converts a DataDescriptor object into a JSON-like dictionary.
+
+    Args:
+    -----
+    dataDescriptor (DataDescriptor): 
+        The DataDescriptor object to convert.
+
+    Returns:
+    --------
+    dict: 
+        A JSON-like dictionary representation of the DataDescriptor.
+    """
     desc = {
         'idFeature': {
             'order': dataDescriptor.idDesc.order, 

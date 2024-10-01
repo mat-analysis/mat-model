@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+MAT-Tools: Python Framework for Multiple Aspect Trajectory Data Mining
+
+The present application offers a tool, to support the user in the modeling of multiple aspect trajectory data. It integrates into a unique framework for multiple aspects trajectories and in general for multidimensional sequence data mining methods.
+Copyright (C) 2022, MIT license (this portion of code is subject to licensing from source project distribution)
+
+Created on Apr, 2024
+Copyright (C) 2024, License GPL Version 3 or superior (see LICENSE file)
+
+Authors:
+    - Tarlis Portela
+    - Vanessa Lago Machado
+"""
 # ------------------------------------------------------------------------------------------------------------
 # BASE for MultipleAspectSequence
 # ------------------------------------------------------------------------------------------------------------
@@ -7,6 +21,45 @@ from matmodel.descriptor import DataDescriptor
 ARROW = ['➜', '↴', '→', '↝', '⇒', '⇢', '⇾', '➡', '⇨', '⇛']
 
 class MultipleAspectSequence:
+    """
+    Represents a sequence of points with multiple aspects.
+
+    This class is designed to handle sequences of points, where each point may have multiple attributes or aspects associated with it. 
+    It provides functionalities to manipulate and analyze these sequences, including the addition of points and extraction of subsequences.
+
+    Parameters
+    ----------
+    seq_id : int or str
+        The identifier for the sequence (or TID - Trajectory ID).
+    new_points : list, optional
+        A list of new points to initialize the sequence with. Default is None.
+    data_desc : DataDescriptor, optional
+        An instance of DataDescriptor that describes the attributes of the points in the sequence. Default is None.
+
+    Attributes
+    ----------
+    tid : int or str
+        The sequence identifier.
+    points : list
+        A list of Point instances representing the points in the sequence.
+    data_desc : DataDescriptor
+        The DataDescriptor instance associated with the sequence.
+    size : int
+        The number of points in the sequence.
+
+    Methods
+    -------
+    readSequence(new_points, data_desc):
+        Reads a list of new points and populates the sequence.
+    addPoint(aspects, data_desc):
+        Adds a new point with specified aspects to the sequence.
+    subsequence(start, size=1, attributes_index=None):
+        Returns a MultipleAspectSequence subsequence of points from the sequence.
+    valuesOf(attributes_index, start=0, size=1):
+        Returns the values of the specified attributes from the subsequence.
+    pointValue(idx, attribute_name):
+        Retrieves the value of a specific attribute from a given point in the sequence.
+    """
     def __init__(self, seq_id, new_points=None, data_desc=None):
         self.tid          = seq_id
         
@@ -61,7 +114,7 @@ class MultipleAspectSequence:
     def addPoint(self, aspects, data_desc):
         assert isinstance(aspects, tuple)
         self.points.append(Point(self.size, aspects, data_desc))
-        self.size += 1
+#        self.size += 1
         
     def subsequence(self, start, size=1, attributes_index=None):
         if attributes_index == None:
@@ -86,6 +139,32 @@ class MultipleAspectSequence:
 
 # ------------------------------------------------------------------------------------------------------------
 class Point:
+    """
+    Represents a point in a multiple-aspect sequence.
+
+    Each point is characterized by its index in the sequence and a set of aspects associated with it.
+
+    Parameters
+    ----------
+    seq : int
+        The index of the point in the sequence.
+    aspects : list
+        A list of Aspect (or derrived types) representing the attributes or aspects of the point.
+
+    Attributes
+    ----------
+    seq : int
+        The index of the point.
+    aspects : tuple
+        The aspects associated with the point.
+
+    Methods
+    -------
+    valuesOf(attributes_index):
+        Retrieves the values of specified attributes from the aspects.
+    asString(attributes_index):
+        Returns a string representation of the point's aspects.
+    """
     def __init__(self, seq, aspects):
         self.seq   = seq
         
@@ -120,6 +199,37 @@ class Point:
 # TRAJECTORY 
 # ------------------------------------------------------------------------------------------------------------
 class Trajectory(MultipleAspectSequence):
+    """
+    Represents a trajectory composed of multiple points.
+
+    A trajectory is a special type of MultipleAspectSequence that includes a label 
+    for identification purposes.
+
+    Parameters
+    ----------
+    tid : int or str
+        The identifier for the trajectory (ID).
+    label : str
+        A label associated with the trajectory.
+    new_points : list
+        A list of initial points for the trajectory.
+    data_desc : DataDescriptor
+        An instance describing the attributes of the points in the trajectory.
+
+    Attributes
+    ----------
+    T : str
+        A formatted string representation of the trajectory identifier.
+    label : str
+        The label of the trajectory.
+
+    Methods
+    -------
+    display():
+        Prints a detailed representation of the trajectory.
+    subtrajectory(start, size=1, attributes_index=None):
+        Returns a Subtrajectory object representing a subsequence of the trajectory.
+    """
     def __init__(self, tid, label, new_points, data_desc):
         MultipleAspectSequence.__init__(self, tid, new_points, data_desc)
         self.label = label
@@ -141,6 +251,37 @@ class Trajectory(MultipleAspectSequence):
 # SUBTRAJECTORY
 # ------------------------------------------------------------------------------------------------------------
 class Subtrajectory(MultipleAspectSequence):
+    """
+    Represents a subsequence of a trajectory.
+
+    A Subtrajectory is derived from a Trajectory and contains a subset of points 
+    along with information about the attributes being analyzed.
+
+    Parameters
+    ----------
+    trajectory : Trajectory
+        The original trajectory from which this subsequence is derived.
+    start : int
+        The starting index of the point of the subsequence in the original trajectory.
+    points : list
+        A list of points that constitute the subsequence.
+    attributes_index : list
+        The indices of attributes being analyzed in this subsequence.
+
+    Attributes
+    ----------
+    attributes_index : list
+        The indices of attributes that belong to the analysis.
+    s : str
+        A formatted string representation of the subsequence.
+
+    Methods
+    -------
+    attribute(index):
+        Retrieves an attribute by its index.
+    values():
+        Returns the values of the specified attributes from the subsequence.
+    """
     def __init__(self, trajectory, start, points, attributes_index):
         MultipleAspectSequence.__init__(self, trajectory.tid)
         self.sid     = 0 # TODO generate unique sid

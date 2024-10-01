@@ -5,9 +5,11 @@ version = "0.1b7"
 description = "MAT-model: Model Classes for Multiple Aspect Trajectory Data Mining"
 authors = [
     {name = "Tarlis Tortelli Portela", email = "tarlis@tarlis.com.br"},
+    {name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com"},
  ]
 maintainers = [
     {name = "Tarlis Tortelli Portela", email = "tarlis@tarlis.com.br"},
+    {name = "Vanessa Lago Machado", email = "vanessalagomachado@gmail.com"},
  ]
 readme = "README.md"
 keywords = [

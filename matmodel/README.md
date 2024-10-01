@@ -1,15 +1,15 @@
 # MAT-model: Model Classes for Multiple Aspect Trajectory Data Mining \[MAT-Tools Framework\]
 ---
 
-\[[Publication](#)\] \[[citation.bib](citation.bib)\] \[[GitHub](https://github.com/ttportela/mat-model)\] \[[PyPi](https://pypi.org/project/mat-model/)\]
+\[[Publication](#)\] \[[Bibtex](https://github.com/mat-analysis/mat-tools/blob/main/references/mat-tools.bib)\] \[[GitHub](https://github.com/mat-analysis/mat-model)\] \[[PyPi](https://pypi.org/project/mat-model/)\]
 
 
-The present package offers a tool, to support the user in the task of modeling multiple aspect trajectories. It integrates into a unique framework for multiple aspects trajectories and in general for multidimensional sequence data mining methods.
+The present package offers a tool, to support the user in the task of **modeling multiple aspect trajectories**. It integrates into a unique framework for multiple aspects trajectories and in general for multidimensional sequence data mining methods.
 
 Created on Apr, 2024
 Copyright (C) 2023, License GPL Version 3 or superior (see LICENSE file)
 
-![MAT-Model Diagram](MAT-Model.png) 
+![MAT-Model Diagram](https://github.com/mat-analysis/mat-model/blob/f14db6337ccc43861bce1670fee3500eb438e1cb/MAT-Model.png?raw=true) 
 
 
 ### Installation
@@ -28,12 +28,7 @@ On how to use this package, see [MAT-model-Tutorial.ipynb](https://github.com/ma
 
 If you use `mat-model` please cite the following paper:
 
-**TODO**
-
-Bibtex:
-```bash
-@inproceedings{...}
-```
+ - Portela, T. T.; Machado, V. L.; Renso, C. Unified Approach to Trajectory Data Mining and Multi-Aspect Trajectory Analysis with MAT-Tools Framework. In: SIMPÓSIO BRASILEIRO DE BANCO DE DADOS (SBBD), 39. , 2024, Florianópolis/SC. \[[Bibtex](https://github.com/mat-analysis/mat-tools/blob/main/references/mat-tools.bib)\]
 
 ### Collaborate with us
 
@@ -49,4 +44,4 @@ This package is part of _MAT-Tools Framework_ for Multiple Aspect Trajectory Dat
 
 ### Change Log
 
-This is a package under construction, see [CHANGELOG.md](./CHANGELOG.md)
+This is a package under construction, see [CHANGELOG.md](https://github.com/mat-analysis/mat-model/blob/main/CHANGELOG.md)

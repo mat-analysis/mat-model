@@ -1,10 +1,25 @@
+# -*- coding: utf-8 -*-
+"""
+MAT-Tools: Python Framework for Multiple Aspect Trajectory Data Mining
+
+The present application offers a tool, to support the user in the modeling of multiple aspect trajectory data. It integrates into a unique framework for multiple aspects trajectories and in general for multidimensional sequence data mining methods.
+Copyright (C) 2022, MIT license (this portion of code is subject to licensing from source project distribution)
+
+Created on Apr, 2024
+Copyright (C) 2024, License GPL Version 3 or superior (see LICENSE file)
+
+Authors:
+    - Tarlis Portela
+    - Vanessa Lago Machado
+"""
 import pandas as pd
 import json
 from tqdm.auto import tqdm
 
 from matdata.preprocess import organizeFrame
 
-from matmodel.base import Trajectory, Movelet
+from matmodel.base import Trajectory
+from matmodel.feature import Movelet
 from matmodel.evaluation import Quality
 from matmodel.descriptor import readDescriptor, df2descriptor
 
@@ -62,8 +77,31 @@ def df2trajectory(df, data_desc=None, tid_col='tid', label_col='label'):
 # ------------------------------------------------------------------------------------------------------------
 # MOVELETS 
 # ------------------------------------------------------------------------------------------------------------
-def json2movelet(file, name='movelets', count=0):
+def json2movelet(file, name='movelets', count=0, load_distances=False):
+    """
+    Parses a JSON movelets file and converts it into a list of Movelet objects.
+
+    Args:
+    -----
+    file (file path / file object): 
+        The JSON file containing movelet or shapelet data.
+    name (str, optional): 
+        The key in the JSON file that holds the movelet data. Defaults to 'movelets'.
+    count (int, optional):
+        An initial count for the movelets. Defaults to 0. 
+        Used for reading multiple files.
+    load_distances (bool, optional): 
+        Whether to load the distances associated with the movelet. Defaults to False.
+
+    Returns:
+    --------
+    list: 
+        A list of Movelet objects parsed from the JSON file.
     
+    Example:
+    --------
+        movelets = json2movelet('moveletsOnTrain.json')
+    """
     data = json.load(file)
     
     if name not in data.keys():
@@ -73,7 +111,7 @@ def json2movelet(file, name='movelets', count=0):
     
     count = 0
     def parseM(x):
-        nonlocal count
+        nonlocal count, load_distances
         
         tid = data[name][x]['trajectory']
         label = data[name][x]['label']
@@ -91,6 +129,10 @@ def json2movelet(file, name='movelets', count=0):
                           start=float(data[name][x]['quality']['start']), 
                           dimensions=float(data[name][x]['quality']['dimensions']))
         m = Movelet(T, start, points, data[name][x]['pointFeatures'], quality, count, data_desc.attributes)
+        
+        if load_distances:
+            m.splitpoints = data[name][x]['splitpoints']
+            m.distances = data[name][x]['distances']
         
         # Converting points
         points = list( points[data_desc.feature_names].itertuples(index=False, name=None) )
