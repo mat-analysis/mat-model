@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 [project]
 name = "mat-model"
-version = "0.1b7"
+version = "0.1rc1"
 description = "MAT-model: Model Classes for Multiple Aspect Trajectory Data Mining"
 authors = [
     {name = "Tarlis Tortelli Portela", email = "tarlis@tarlis.com.br"},
@@ -70,7 +70,7 @@ docs = [
 [project.urls]
 "Homepage" = "https://github.com/ttportela/mat-model"
 "Repository" = "https://github.com/ttportela/mat-model"
-"Documentation" = "https://github.com/ttportela/mat-model/blob/main/README.md"
+"Documentation" = "https://mat-analysis.github.io/mat-tools/mat-model/index.html"
 "Download" = "https://pypi.org/project/mat-model/#files"
 "Bug Tracker" = "https://github.com/ttportela/mat-model/issues"
 

@@ -15,14 +15,25 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+   
 
-
-.. toctree:: matmodel
-   :maxdepth: 5
+.. toctree::
+   :maxdepth: 4
    :caption: Modules in MAT-model:
 
-   .base
-   .comparator
+    Base <matmodel.base>
+    Comparator <matmodel.comparator>
+    Dataset Descriptor <matmodel.descriptor>
+    Feature <matmodel.feature>
+    Representative <matmodel.representative>
+    Util <matmodel.util>
+   
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+   :caption: Framework Documentation:
+
+   MAT-Tools <https://mat-analysis.github.io/mat-tools/>
    
 ----
 
